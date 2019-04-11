@@ -1,2 +1,3 @@
-# hw4-template
-This is an empty repository for the HW #4
+# Homework 4
+
+Don't cheat. Good luck!
