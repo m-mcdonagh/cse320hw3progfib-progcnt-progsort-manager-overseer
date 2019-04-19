@@ -2,7 +2,7 @@ progfib:
 	gcc src/progfib.c src/defs.c -I./inc -o hw4_progfib -lpthread
 
 progcnt:
-	gcc -I./inc -o hw4_progcnt
+	gcc src/progcnt.c src/defs.c src/error_checking.c -I./inc -o hw4_progcnt -lpthread
 
 progqsort:
 	gcc -I./inc -o hw4_progqsort

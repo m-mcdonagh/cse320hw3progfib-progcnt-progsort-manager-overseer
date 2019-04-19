@@ -32,3 +32,13 @@ void childReaper(int sig){
 	while(waitpid(-1, NULL, WNOHANG) > 0);
 	return;
 }
+
+FILE* Fopen(const char* filename, const char* mode){
+	FILE* output = fopen(filename, mode);
+	if (output)
+		return output;
+	else{ 
+		fprintf(stderr, "Error opening \"%s\".\n", filename);
+		exit(EXIT_FAILURE);
+	}
+}
