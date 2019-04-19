@@ -1,5 +1,5 @@
 progfib:
-	gcc -I./inc -o hw4_progfib
+	gcc src/progfib.c src/defs.c -I./inc -o hw4_progfib -lpthread
 
 progcnt:
 	gcc -I./inc -o hw4_progcnt
@@ -13,3 +13,5 @@ manager:
 overseer:
 	gcc -I./inc -o museum_overseer
 
+clean:
+	rm hw4_progfib hw4_progcnt artist_manager museum_overseer
