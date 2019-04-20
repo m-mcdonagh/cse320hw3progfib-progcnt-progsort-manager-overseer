@@ -8,7 +8,7 @@ progqsort:
 	gcc src/progqsort.c src/defs.c src/error_checking.c -I./inc -o hw4_progqsort -g -lpthread
 
 manager:
-	gcc src/artist_manager.c src/artist_ds.c src/artist.c src/error_checking.c -I./inc -o artist_manager
+	gcc src/artist_manager.c src/artist_ds.c src/artist.c src/defs.c src/error_checking.c -I./inc -o artist_manager -lpthread
 
 overseer:
 	gcc -I./inc -o museum_overseer

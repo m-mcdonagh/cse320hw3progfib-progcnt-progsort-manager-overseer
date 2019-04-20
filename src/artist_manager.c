@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
+#include <pthread.h>
 #define equals(s1, s2) !strcmp(s1, s2)
 #define BOOLEAN char
 #define TRUE 1
@@ -47,7 +47,7 @@ BOOLEAN executeCommand(char** args){
 	if (equals(*args, "fire")){
 		int x;
 		if (*++args && (x = atoi(*args)) > 0){
-			fire((pid_t)x);
+			fire((pthread_t)x);
 		}
 		else
 			fprintf(stderr, "Error: invalid arguments for \"fire\".\n");
@@ -57,7 +57,7 @@ BOOLEAN executeCommand(char** args){
 	}
 	if (equals(*args, "assign")){
 		if (*++args){
-			pid_t x = (pid_t)atoi(*args);
+			pthread_t x = (pthread_t)atoi(*args);
 			assign(x);
 		}
 		else
@@ -65,7 +65,7 @@ BOOLEAN executeCommand(char** args){
 	}
 	if (equals(*args, "withdraw")){
 		if (*++args){
-			pid_t x = (pid_t)atoi(*args);
+			pthread_t x = (pthread_t)atoi(*args);
 			withdraw(x);
 		}
 		else
@@ -87,7 +87,6 @@ void end(int sig){
 
 int main(void){
 	Signal(SIGINT, end);
-	Signal(SIGCHLD, reapAndRemove);
 	shell_loop(32);
 	fireall();
 	exit(0);

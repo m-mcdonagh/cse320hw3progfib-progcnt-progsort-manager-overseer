@@ -2,52 +2,41 @@
 #include "defs.h"
 #include "artist_manager.h"
 #include <stdio.h>
-#include <sys/types.h>
-#include <signal.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
 #define BOOLEAN char
 #define TRUE 1
 #define FALSE 0
 
-pid_t pid;
-BOOLEAN assigned;
-BOOLEAN alive;
-
-void setAssigned(int sig){
-	if (!assigned){
-		assigned = TRUE;
-		char msg[64];
-		sprintf(msg, "ARTIST %d IS ASSIGNED TO A JOB\n", (int)pid);
+BOOLEAN check(struct artist* this, BOOLEAN assigned){
+	if (assigned != this->assigned){
+		char msg[256];
+		if (this->assigned)
+			sprintf(msg, "ARTIST %d IS ASSIGNED TO A JOB\n", (int)this->tid);
+		else
+			sprintf(msg, "ARTIST %d IS WITHDRAWN FROM A JOB\n", (int)this->tid);
 		cse320_print(msg);
+		assigned = this->assigned;
 	}
-	else
-		fprintf(stderr, "Error: %d is already assigned\n", (int)pid);
+	return assigned;
 }
 
-void setWaiting(int sig){
-	if (assigned){
-		assigned = FALSE;
-		char msg[64];
-		sprintf(msg, "ARTIST %d IS WITHDRAWN FROM A JOB\n", (int)pid);
-		cse320_print(msg);
+void* artistProcess(void* voidptr){
+	pthread_detach( pthread_self() );
+
+	struct artist* this = (struct artist*)voidptr;
+	BOOLEAN assigned = this->assigned;
+	char msg[64];
+
+	while(this->alive){
+		sem_wait(&(this->mutex));
+		assigned = check(this, assigned);
+		sem_post(&(this->mutex));
 	}
-	else
-		fprintf(stderr, "Error: %d isn't assigned to a job\n", (int)pid);
-}
+	sem_wait(&(this->mutex));
+	check(this, assigned);
+	free(this);
 
-void artistProcess(){
-	childFree();
-
-	pid = getpid();
-	assigned = FALSE;
-	alive = TRUE;
-
-	Signal(SIGUSR1, setAssigned);
-	Signal(SIGUSR2, setWaiting);
-	Signal(SIGINT, SIG_DFL);
-
-	while(alive)
-		pause();
-	
-	exit(0);
+	pthread_exit(NULL);
 }

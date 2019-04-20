@@ -1,20 +1,18 @@
 #ifndef ARTIST_MANAGER
 #define ARTIST_MANAGER
-#include <sys/types.h>
+#include <pthread.h>
 
 // Defined in artist_ds.c
 	struct artist;
-	void newArtist(pid_t pid);
+	struct artist* newArtist(pthread_t pid);
 	void hire(int n);
-	void fire(pid_t x);
+	void fire(pthread_t x);
 	void fireall();
-	void assign(pid_t x);
-	void withdraw(pid_t x);
+	void assign(pthread_t x);
+	void withdraw(pthread_t x);
 	void list();
-	void reapAndRemove(int sig);
-	void childFree();
 
 // Defined in artist.c
-	void artistProcess();
+	void* artistProcess(void* voidptr);
 
 #endif
