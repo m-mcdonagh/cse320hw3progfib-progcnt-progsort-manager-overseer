@@ -5,7 +5,7 @@ progcnt:
 	gcc src/progcnt.c src/defs.c src/error_checking.c -I./inc -o hw4_progcnt -lpthread
 
 progqsort:
-	gcc -I./inc -o hw4_progqsort
+	gcc src/progqsort.c src/defs.c src/error_checking.c -I./inc -o hw4_progqsort -g -lpthread
 
 manager:
 	gcc src/artist_manager.c src/artist_ds.c src/artist.c src/error_checking.c -I./inc -o artist_manager
@@ -14,4 +14,4 @@ overseer:
 	gcc -I./inc -o museum_overseer
 
 clean:
-	rm hw4_progfib hw4_progcnt artist_manager museum_overseer
+	rm hw4_progfib hw4_progcnt hw4_progqsort artist_manager museum_overseer

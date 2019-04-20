@@ -16,7 +16,7 @@ sem_t mutex;
 
 void* threadRoutine(void* voidptr){
 	FILE* file = (FILE *) voidptr;
-	char nString[8];
+	char nString[16];
 	if (fgets(nString, 8, file) == NULL){
 		fprintf(stderr, "ERROR: incorrect file format\n");
 		exit(EXIT_FAILURE);
@@ -31,6 +31,7 @@ void* threadRoutine(void* voidptr){
 		fprintf(stderr, "ERROR: incorrect file format\n");
 		exit(EXIT_FAILURE);
 	}
+	fclose(file);
 
 	int i;
 	int currentInt;
