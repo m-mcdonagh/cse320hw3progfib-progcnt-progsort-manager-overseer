@@ -23,8 +23,6 @@ BOOLEAN check(struct artist* this, BOOLEAN assigned){
 }
 
 void* artistProcess(void* voidptr){
-	pthread_detach( pthread_self() );
-
 	struct artist* this = (struct artist*)voidptr;
 	BOOLEAN assigned = this->assigned;
 	char msg[64];
@@ -36,7 +34,6 @@ void* artistProcess(void* voidptr){
 	}
 	sem_wait(&(this->mutex));
 	check(this, assigned);
-	free(this);
-
+	sem_post(&(this->mutex));
 	pthread_exit(NULL);
 }

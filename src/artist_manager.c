@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
 #define equals(s1, s2) !strcmp(s1, s2)
@@ -25,10 +26,10 @@ exit\t\texits the shell\n";
 BOOLEAN executeCommand(char** args){
 	if (!args || !*args)
 		return TRUE;
-	if (equals(*args, "help")){
+	else if (equals(*args, "help")){
 		cse320_print( helpstring );
 	}
-	if (equals(*args, "date")){
+	else if (equals(*args, "date")){
 		if (Fork() == 0){
 			*args = "/bin/date";
 			execvp(*args, args);
@@ -37,44 +38,45 @@ BOOLEAN executeCommand(char** args){
 		}
 		pause();
 	}
-	if (equals(*args, "hire")){
+	else if (equals(*args, "hire")){
 		int n;
 		if (*++args && (n = atoi(*args)) > 0)
 			hire(n);
 		else
 			fprintf(stderr, "Error: invalid arguments for \"hire\".\n");
 	}
-	if (equals(*args, "fire")){
+	else if (equals(*args, "fire")){
 		int x;
-		if (*++args && (x = atoi(*args)) > 0){
+		if (*++args){
+			x = atoi(*args);
 			fire((pthread_t)x);
 		}
 		else
 			fprintf(stderr, "Error: invalid arguments for \"fire\".\n");
 	}
-	if (equals(*args, "fireall")){
+	else if (equals(*args, "fireall")){
 		fireall();
 	}
-	if (equals(*args, "assign")){
+	else if (equals(*args, "assign")){
 		if (*++args){
-			pthread_t x = (pthread_t)atoi(*args);
+			int x = atoi(*args);
 			assign(x);
 		}
 		else
 			fprintf(stderr, "Error: invalid arguments for \"assign\".\n");
 	}
-	if (equals(*args, "withdraw")){
+	else if (equals(*args, "withdraw")){
 		if (*++args){
-			pthread_t x = (pthread_t)atoi(*args);
+			int x = atoi(*args);
 			withdraw(x);
 		}
 		else
 			fprintf(stderr, "Error: invalid arguments for \"withdraw\".\n");
 	}
-	if (equals(*args, "list")){
+	else if (equals(*args, "list")){
 		list();
 	}
-	if (equals(*args, "exit")){
+	else if (equals(*args, "exit")){
 		return FALSE;
 	}
 	return TRUE;
@@ -82,12 +84,17 @@ BOOLEAN executeCommand(char** args){
 
 void end(int sig){
 	fireall();
-	exit(0);
+	pthread_exit(NULL);
+}
+
+void reap(int sig){
+	while(waitpid(-1, NULL, WNOHANG) > 0);
 }
 
 int main(void){
 	Signal(SIGINT, end);
+	Signal(SIGCHLD, reap);
 	shell_loop(32);
 	fireall();
-	exit(0);
+	pthread_exit(NULL);
 }

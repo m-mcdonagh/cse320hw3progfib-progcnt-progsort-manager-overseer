@@ -114,7 +114,7 @@ BOOLEAN executeCommand(char** args){
 void shell_loop(int maxArgs){
 	char* commandLine = NULL;
 	char** args;
-	size_t bufsize = 0;
+	size_t bufsize = 32;
 	BOOLEAN notExit = TRUE;
 	
 	while(notExit){
@@ -124,7 +124,8 @@ void shell_loop(int maxArgs){
 		notExit = executeCommand(args);
 		if (args)
 			free(args);
-		free(commandLine);
+		if (commandLine)
+			free(commandLine);
 		commandLine = NULL;
 	}
 }

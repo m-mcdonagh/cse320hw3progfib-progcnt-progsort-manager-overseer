@@ -8,19 +8,10 @@
 #define TRUE 1
 #define FALSE 0
 
-struct artist{
-	pthread_t tid;
-	struct artist* next;
-	sem_t mutex;
-	BOOLEAN assigned;
-	BOOLEAN alive;
-};
-
 struct artist* head = NULL;
 
-struct artist* newArtist(pthread_t tid){
+struct artist* newArtist(){
 	struct artist* new = malloc(sizeof(struct artist));
-	new->tid = tid;
 	new->next = NULL;
 	new->assigned = FALSE;
 	new->alive = TRUE;
@@ -40,18 +31,17 @@ struct artist* newArtist(pthread_t tid){
 }
 
 void hire(int n){
-	pthread_t tid;
 	int i;
 	for (i=0; i<n; i++){
-		struct artist* ptr = newArtist(tid);
-		pthread_create(&tid, NULL, artistProcess, (void *)ptr);
+		struct artist* ptr = newArtist();
+		pthread_create(&(ptr->tid), NULL, artistProcess, (void *)ptr);
 	}
 }
 
-void assign(pthread_t x){
+void assign(int x){
 	struct artist* cursor = head;
 	while (cursor){
-		if (cursor->tid == x){
+		if ((int)cursor->tid == x){
 			sem_wait(&(cursor->mutex));
 			cursor->assigned = TRUE;
 			sem_post(&(cursor->mutex));
@@ -62,10 +52,10 @@ void assign(pthread_t x){
 	fprintf(stderr, "Error: there exists no artist with TID %d.\n", (int)x);
 }
 
-void withdraw(pthread_t x){
+void withdraw(int x){
 	struct artist* cursor = head;
 	while (cursor){
-		if (cursor->tid == x){
+		if ((int)cursor->tid == x){
 			sem_wait(&(cursor->mutex));
 			cursor->assigned = FALSE;
 			sem_post(&(cursor->mutex));
@@ -76,11 +66,11 @@ void withdraw(pthread_t x){
 	fprintf(stderr, "Error: there exists no artist with TID %d.\n", (int)x);
 }
 
-void fire(pthread_t x){
+void fire(int x){
 	struct artist* cursor = head;
 	struct artist* prev = NULL;
 	while(cursor){
-		if (cursor->tid == x){
+		if ((int)cursor->tid == x){
 			if (prev)
 				prev->next = cursor->next;
 			else
@@ -90,6 +80,8 @@ void fire(pthread_t x){
 				cursor->assigned = FALSE;
 			cursor->alive = FALSE;
 			sem_post(&(cursor->mutex));
+			pthread_join(cursor->tid, NULL);
+			free(cursor);
 			return;
 		}
 		prev = cursor;
@@ -100,25 +92,31 @@ void fire(pthread_t x){
 
 void fireall(){
 	struct artist* cursor = head;
+	struct artist* temp;
 	head = NULL;
 	while (cursor){
 		sem_wait(&(cursor->mutex));
 		if (cursor->assigned)
 			cursor->assigned = FALSE;
 		cursor->alive = FALSE;
+		temp = cursor;
 		cursor = cursor->next;
-		sem_post(&(cursor->mutex));
+		sem_post(&(temp->mutex));
+		pthread_join(temp->tid, NULL);
+		free(temp);
 	}
 }
 
 void list(){
 	char output[256];
 	struct artist* cursor = head;
+	struct artist* temp;
 	while (cursor){
 		sem_wait(&(cursor->mutex));
 		sprintf(output, "%d %s\n", (int)(cursor->tid), cursor->assigned? "ASSIGNED" : "WAITING");
 		cse320_print(output);
+		temp = cursor;
 		cursor = cursor->next;
-		sem_post(&(cursor->mutex));
+		sem_post(&(temp->mutex));
 	}
 }
