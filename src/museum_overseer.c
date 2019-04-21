@@ -10,16 +10,14 @@
 #define TRUE 1
 #define FALSE 0
 
-BOOLEAN closing = FALSE;
+extern BOOLEAN closing;
 
 BOOLEAN executeCommand(char** args){
 	if (!args || !*args)
 		fprintf(stderr, "ERROR: Invalid command\n");
 	else if (equals(*args, "in")){
 		int x, n, i;
-		if (*++args && *++args){
-			x = atoi(*args);
-			n = atoi(*--args);
+		if (*++args && (n = atoi(*args)) <= 5 && n >= 1 && *++args && (x = atoi(*args)) > 0){
 			in_spawner(n, x);
 		}
 		else
@@ -27,13 +25,11 @@ BOOLEAN executeCommand(char** args){
 	}
 	else if (equals(*args, "out")){
 		int x, n, i;
-		if (*++args && *++args){
-			x = atoi(*args);
-			n = atoi(*--args);
+		if (*++args && (n = atoi(*args)) <= 5 && n >= 1 && *++args && (x = atoi(*args)) > 0){
 			out_spawner(n, x);
 		}
 		else
-			fprintf(stderr, "ERROR: Invalid arguments for \"in\".\n");
+			fprintf(stderr, "ERROR: Invalid arguments for \"out\".\n");
 	}
 	else if (equals(*args, "info")){
 		museum_info();
@@ -41,7 +37,7 @@ BOOLEAN executeCommand(char** args){
 	else if (equals(*args, "start")){
 		if (!closing){
 			closing = TRUE;
-			start_closing();
+			start();
 		}
 	}
 	else if (equals(*args, "exit")){
@@ -53,13 +49,17 @@ BOOLEAN executeCommand(char** args){
 }
 
 void end(int sig){
+	closing = FALSE;
 	museum_clean();
 	pthread_exit(NULL);
 }
 
 void main(void){
 	Signal(SIGINT, end);
+	closing = FALSE;
+	initialize_museum_ds();
 	shell_loop(16);
+	closing = FALSE;
 	museum_clean();
 	pthread_exit(NULL);
 }

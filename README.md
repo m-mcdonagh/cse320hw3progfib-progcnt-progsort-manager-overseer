@@ -3,4 +3,5 @@ To compile any given program, call "make" with one of the following arguments:
 	progcnt,
 	progqsort,
 	manager,
-	overseer
+	overseer.
+Calling "make" without an argument creates all 5 programs.
