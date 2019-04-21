@@ -11,7 +11,7 @@ manager:
 	gcc src/artist_manager.c src/artist_ds.c src/artist.c src/defs.c src/error_checking.c -I./inc -o artist_manager -lpthread -g
 
 overseer:
-	gcc -I./inc -o museum_overseer
+	gcc src/museum_overseer.c src/museum_ds.c src/defs.c src/error_checking.c -I./inc -o museum_overseer
 
 clean:
 	rm hw4_progfib hw4_progcnt hw4_progqsort artist_manager museum_overseer
